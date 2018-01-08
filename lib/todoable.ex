@@ -13,8 +13,6 @@ defmodule Todoable do
               expires_at: nil
   end
 
-  alias Client
-
   def lists(%Client{token: token}) do
     response = token_auth(token)
     |> get("/lists")
@@ -81,6 +79,7 @@ defmodule Todoable do
   def authenticate(%Client{token: token, expires_at: expires_at}=client, username: username, password: password) do
     try do
       %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
+      |> post("/authenticate", %{})
 
       {:ok, %Client{token: token, expires_at: expires_at}}
     rescue
@@ -98,6 +97,5 @@ defmodule Todoable do
     Tesla.build_client([
       {Tesla.Middleware.BasicAuth, Map.merge(%{username: username, password: password}, %{})}
     ])
-    |> post("/authenticate", %{})
   end
 end
