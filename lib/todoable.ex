@@ -16,10 +16,13 @@ defmodule Todoable do
   alias Client
 
   def lists(%Client{token: token}) do
-    %{body: body} = token_auth(token)
+    response = token_auth(token)
     |> get("/lists")
 
-    body["lists"]
+    case response.status do
+      200 -> response.body["lists"]
+      _ -> response.body
+    end
   end
 
   def get_list(%Client{token: token}, id: list_id) do
@@ -71,6 +74,16 @@ defmodule Todoable do
     body
   end
 
+  def build_client() do
+    %Client{token: nil, expires_at: nil}
+  end
+
+  def authenticate(%Client{token: token, expires_at: expires_at}, username: username, password: password) do
+    %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
+
+    %Client{token: token, expires_at: expires_at}
+  end
+
   defp token_auth(token) do
     Tesla.build_client([
       {Tesla.Middleware.Headers, %{"Authorization" => "Token token=\"#{token}\""}}
@@ -82,12 +95,5 @@ defmodule Todoable do
       {Tesla.Middleware.BasicAuth, Map.merge(%{username: username, password: password}, %{})}
     ])
     |> post("/authenticate", %{})
-  end
-
-  def build_client(), do: build_client(username: "username", password: "password")
-  def build_client(username: username, password: password) do
-    %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
-
-    %Client{token: token, expires_at: expires_at}
   end
 end
