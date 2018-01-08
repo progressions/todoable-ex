@@ -12,7 +12,7 @@ defmodule Todoable do
     %{body: body} = token_auth(token)
     |> get("/lists")
 
-    body
+    body["lists"]
   end
 
   def get_list(%{token: token}, id: list_id) do
@@ -25,6 +25,41 @@ defmodule Todoable do
   def create_list(%{token: token}, name: name) do
     %{body: body} = token_auth(token)
     |> post("/lists", %{list: %{name: name}})
+
+    body
+  end
+
+  def update_list(%{token: token}, id: list_id, name: name) do
+    %{body: body} = token_auth(token)
+    |> patch("/lists/#{list_id}", %{list: %{name: name}})
+
+    body
+  end
+
+  def delete_list(%{token: token}, id: list_id) do
+    %{body: body} = token_auth(token)
+    |> delete("/lists/#{list_id}")
+
+    body == ""
+  end
+
+  def create_item(%{token: token}, id: list_id, name: name) do
+    %{body: body} = token_auth(token)
+    |> post("/lists/#{list_id}/items", %{item: %{name: name}})
+
+    body
+  end
+
+  def delete_item(%{token: token}, list_id: list_id, item_id: item_id) do
+    %{body: body} = token_auth(token)
+    |> delete("/lists/#{list_id}/items/#{item_id}")
+
+    body
+  end
+
+  def finish_item(%{token: token}, list_id: list_id, item_id: item_id) do
+    %{body: body} = token_auth(token)
+    |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
 
     body
   end
