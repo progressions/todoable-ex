@@ -15,22 +15,27 @@ defmodule Todoable do
   end
 
   def lists(%Client{token: token}) do
-    with {:ok, response} <- token_auth(token)
-      |> get("/lists") do
-      case response.status do
-        200 -> response.body["lists"]
-        _ -> response.body
-      end
-    else
-      {:error, _} -> {:error, "The server is not available."}
+    req(fn () ->
+      token_auth(token)
+      |> get("/lists")
+    end)
+
+    |> case do
+      {:ok, body} -> {:ok, body["lists"]}
+      {:error, body} -> {:error, body}
     end
   end
 
   def get_list(%Client{token: token}, id: list_id) do
-    %{body: body} = token_auth(token)
-    |> get("/lists/#{list_id}")
+    req(fn () ->
+      token_auth(token)
+      |> get("/lists/#{list_id}")
+    end)
 
-    body
+    |> case do
+      {:ok, body} -> {:ok, body}
+      {:error, body} -> {:error, body}
+    end
   end
 
   def create_list(%Client{token: token}, name: name) do
@@ -85,6 +90,17 @@ defmodule Todoable do
     |> case do
       {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at}}
       _ -> {:error, %Client{token: nil, expires_at: nil}}
+    end
+  end
+
+  defp req(fun) do
+    with {:ok, response} <- fun.() do
+      case response.status do
+        200 -> {:ok, response.body}
+        _ -> {:error, response.body}
+      end
+    else
+      {:error, _} -> {:error, "The server is not available."}
     end
   end
 

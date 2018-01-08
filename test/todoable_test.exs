@@ -55,7 +55,7 @@ defmodule TodoableTest do
     {:ok, client} = Todoable.build_client()
     |> Todoable.authenticate(username: "username", password: "password")
 
-    assert Todoable.lists(client) == lists()
+    assert Todoable.lists(client) == {:ok, lists()}
   end
 
   test "requests all lists when server is not available" do
