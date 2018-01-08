@@ -92,6 +92,7 @@ defmodule Todoable do
     with {:ok, response} <- fun.() do
       case response.status do
         code when code in 200..300 -> {:ok, response.body}
+        404 -> {:error, "Could not find resource."}
         _ -> {:error, response.body}
       end
     else

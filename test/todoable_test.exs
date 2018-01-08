@@ -110,6 +110,15 @@ defmodule TodoableTest do
     assert Todoable.get_list(state.client, id: "123-abc") == {:error, "The server is not available."}
   end
 
+  test "requests a single list which doesn't exist", state do
+    Tesla.Mock.mock fn
+          %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+            %Tesla.Env{status: 404, body: ""}
+    end
+
+    assert Todoable.get_list(state.client, id: "123-abc") == {:error, "Could not find resource."}
+  end
+
   test "creates a list", state do
     assert Todoable.create_list(state.client, name: "Shopping") == {:ok, List.first(lists())}
   end
