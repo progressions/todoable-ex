@@ -78,10 +78,14 @@ defmodule Todoable do
     %Client{token: nil, expires_at: nil}
   end
 
-  def authenticate(%Client{token: token, expires_at: expires_at}, username: username, password: password) do
-    %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
+  def authenticate(%Client{token: token, expires_at: expires_at}=client, username: username, password: password) do
+    try do
+      %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
 
-    %Client{token: token, expires_at: expires_at}
+      {:ok, %Client{token: token, expires_at: expires_at}}
+    rescue
+      Tesla.Error -> {:error, client}
+    end
   end
 
   defp token_auth(token) do
