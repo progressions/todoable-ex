@@ -39,10 +39,34 @@ defmodule TodoableTest do
     assert client == %Todoable.Client{expires_at: "123", token: "abc123"}
   end
 
+  test "requests authentication when server is not available" do
+    Tesla.Mock.mock fn
+          %{method: :post, url: "http://localhost:4000/api/authenticate"} ->
+            raise Tesla.Error
+    end
+
+    {:error, client} = Todoable.build_client()
+    |> Todoable.authenticate(username: "username", password: "password")
+
+    assert client == %Todoable.Client{expires_at: nil, token: nil}
+  end
+
   test "requests all lists" do
     {:ok, client} = Todoable.build_client()
     |> Todoable.authenticate(username: "username", password: "password")
 
     assert Todoable.lists(client) == lists()
+  end
+
+  test "requests all lists when server is not available" do
+    {:ok, client} = Todoable.build_client()
+    |> Todoable.authenticate(username: "username", password: "password")
+
+    Tesla.Mock.mock fn
+          %{method: :get, url: "http://localhost:4000/api/lists"} ->
+            raise Tesla.Error
+    end
+
+    assert Todoable.lists(client) == {:error, "The server is not available."}
   end
 end

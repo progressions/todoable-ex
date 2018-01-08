@@ -5,6 +5,7 @@ defmodule Todoable do
 
   use Tesla
 
+  plug Tesla.Middleware.Tuples
   plug Tesla.Middleware.BaseUrl, "http://localhost:4000/api"
   plug Tesla.Middleware.JSON
 
@@ -14,12 +15,14 @@ defmodule Todoable do
   end
 
   def lists(%Client{token: token}) do
-    response = token_auth(token)
-    |> get("/lists")
-
-    case response.status do
-      200 -> response.body["lists"]
-      _ -> response.body
+    with {:ok, response} <- token_auth(token)
+      |> get("/lists") do
+      case response.status do
+        200 -> response.body["lists"]
+        _ -> response.body
+      end
+    else
+      {:error, _} -> {:error, "The server is not available."}
     end
   end
 
@@ -76,14 +79,12 @@ defmodule Todoable do
     %Client{token: nil, expires_at: nil}
   end
 
-  def authenticate(%Client{token: token, expires_at: expires_at}=client, username: username, password: password) do
-    try do
-      %{body: %{"token" => token, "expires_at" => expires_at}} = basic_auth(username: username, password: password)
-      |> post("/authenticate", %{})
-
-      {:ok, %Client{token: token, expires_at: expires_at}}
-    rescue
-      Tesla.Error -> {:error, client}
+  def authenticate(%Client{token: _token, expires_at: _expires_at}, username: username, password: password) do
+    basic_auth(username: username, password: password)
+    |> post("/authenticate", %{})
+    |> case do
+      {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at}}
+      _ -> {:error, %Client{token: nil, expires_at: nil}}
     end
   end
 
