@@ -91,9 +91,7 @@ defmodule Todoable do
   defp req(fun) do
     with {:ok, response} <- fun.() do
       case response.status do
-        200 -> {:ok, response.body}
-        201 -> {:ok, response.body}
-        204 -> {:ok, response.body}
+        code when code in 200..300 -> {:ok, response.body}
         _ -> {:error, response.body}
       end
     else
