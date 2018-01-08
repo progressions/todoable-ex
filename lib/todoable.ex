@@ -31,53 +31,48 @@ defmodule Todoable do
       token_auth(token)
       |> get("/lists/#{list_id}")
     end)
-
-    |> case do
-      {:ok, body} -> {:ok, body}
-      {:error, body} -> {:error, body}
-    end
   end
 
   def create_list(%Client{token: token}, name: name) do
-    %{body: body} = token_auth(token)
-    |> post("/lists", %{list: %{name: name}})
-
-    body
+    req(fn () ->
+      token_auth(token)
+      |> post("/lists", %{list: %{name: name}})
+    end)
   end
 
   def update_list(%Client{token: token}, id: list_id, name: name) do
-    %{body: body} = token_auth(token)
-    |> patch("/lists/#{list_id}", %{list: %{name: name}})
-
-    body
+    req(fn () ->
+      token_auth(token)
+      |> patch("/lists/#{list_id}", %{list: %{name: name}})
+    end)
   end
 
   def delete_list(%Client{token: token}, id: list_id) do
-    %{body: body} = token_auth(token)
-    |> delete("/lists/#{list_id}")
-
-    body == ""
+    req(fn () ->
+      token_auth(token)
+      |> delete("/lists/#{list_id}")
+    end)
   end
 
-  def create_item(%Client{token: token}, id: list_id, name: name) do
-    %{body: body} = token_auth(token)
-    |> post("/lists/#{list_id}/items", %{item: %{name: name}})
-
-    body
+  def create_item(%Client{token: token}, list_id: list_id, name: name) do
+    req(fn () ->
+      token_auth(token)
+      |> post("/lists/#{list_id}/items", %{item: %{name: name}})
+    end)
   end
 
   def delete_item(%Client{token: token}, list_id: list_id, item_id: item_id) do
-    %{body: body} = token_auth(token)
-    |> delete("/lists/#{list_id}/items/#{item_id}")
-
-    body
+    req(fn () ->
+      token_auth(token)
+      |> delete("/lists/#{list_id}/items/#{item_id}")
+    end)
   end
 
   def finish_item(%Client{token: token}, list_id: list_id, item_id: item_id) do
-    %{body: body} = token_auth(token)
-    |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
-
-    body
+    req(fn () ->
+      token_auth(token)
+      |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
+    end)
   end
 
   def build_client() do
@@ -97,6 +92,8 @@ defmodule Todoable do
     with {:ok, response} <- fun.() do
       case response.status do
         200 -> {:ok, response.body}
+        201 -> {:ok, response.body}
+        204 -> {:ok, response.body}
         _ -> {:error, response.body}
       end
     else
