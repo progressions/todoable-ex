@@ -55,8 +55,8 @@ defmodule TodoableBaseUrlTest do
         %Tesla.Env{status: 204, body: ""}
     end
 
-    {:ok, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
+    {:ok, client} = Todoable.build_client(base_url: "http://todoable.com/api")
+    |> Todoable.authenticate(username: "username", password: "password")
 
     {:ok, client: client}
   end
