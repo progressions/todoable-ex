@@ -17,7 +17,7 @@ defmodule Todoable do
   def lists(%Client{token: token}) do
     req(fn () ->
       token_auth(token)
-      get("/lists")
+      |> get("/lists")
     end)
 
     |> case do
