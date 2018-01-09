@@ -25,8 +25,8 @@ defmodule Todoable do
     end)
 
     |> case do
-      {:ok, body} -> {:ok, body["lists"]}
-      {:error, body} -> {:error, body}
+      {:ok, body}     -> {:ok, body["lists"]}
+      {:error, body}  -> {:error, body}
     end
   end
 
