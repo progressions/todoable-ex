@@ -14,10 +14,6 @@ defmodule Todoable do
     defstruct [:token, :expires_at, :base_url]
   end
 
-  def c do
-    with {:ok, client} <- Todoable.build_client() |> Todoable.authenticate(username: "progressions@gmail.com", password: "todoable", base_url: "http://todoable.teachable.tech/api"), do: client
-  end
-
   def lists(%Client{token: token, base_url: base_url}) do
     req(fn () ->
       token_auth(token, base_url)
