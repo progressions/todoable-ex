@@ -124,8 +124,8 @@ defmodule TodoableTest do
 
   test "requests a single list when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
-            raise Tesla.Error
+      %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.get_list(state.client, id: "123-abc") == {:error, "The server is not available."}
@@ -133,8 +133,8 @@ defmodule TodoableTest do
 
   test "requests a single list which doesn't exist", state do
     Tesla.Mock.mock fn
-          %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
-            %Tesla.Env{status: 404, body: ""}
+      %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+        %Tesla.Env{status: 404, body: ""}
     end
 
     assert Todoable.get_list(state.client, id: "123-abc") == {:error, "Could not find resource."}
@@ -146,8 +146,8 @@ defmodule TodoableTest do
 
   test "creates a list when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :post, url: "http://localhost:4000/api/lists"} ->
-            raise Tesla.Error
+      %{method: :post, url: "http://localhost:4000/api/lists"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.create_list(state.client, name: "Shopping") == {:error, "The server is not available."}
@@ -159,8 +159,8 @@ defmodule TodoableTest do
 
   test "updates list when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :patch, url: "http://localhost:4000/api/lists/123-abc"} ->
-            raise Tesla.Error
+      %{method: :patch, url: "http://localhost:4000/api/lists/123-abc"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.update_list(state.client, id: "123-abc", name: "Groceries") == {:error, "The server is not available."}
@@ -172,8 +172,8 @@ defmodule TodoableTest do
 
   test "deletes list when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :delete, url: "http://localhost:4000/api/lists/123-abc"} ->
-            raise Tesla.Error
+      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.delete_list(state.client, id: "123-abc") == {:error, "The server is not available."}
@@ -185,8 +185,8 @@ defmodule TodoableTest do
 
   test "creates an item when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :post, url: "http://localhost:4000/api/lists/123-abc/items"} ->
-            raise Tesla.Error
+      %{method: :post, url: "http://localhost:4000/api/lists/123-abc/items"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.create_item(state.client, list_id: "123-abc", name: "Milk") == {:error, "The server is not available."}
@@ -198,8 +198,8 @@ defmodule TodoableTest do
 
   test "deletes an item when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :delete, url: "http://localhost:4000/api/lists/123-abc/items/987-zyx"} ->
-            raise Tesla.Error
+      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc/items/987-zyx"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.delete_item(state.client, list_id: "123-abc", item_id: "987-zyx") == {:error, "The server is not available."}
@@ -211,8 +211,8 @@ defmodule TodoableTest do
 
   test "finishes an item when server is not available", state do
     Tesla.Mock.mock fn
-          %{method: :put, url: "http://localhost:4000/api/lists/456-def/items/654-wvu/finish"} ->
-            raise Tesla.Error
+      %{method: :put, url: "http://localhost:4000/api/lists/456-def/items/654-wvu/finish"} ->
+        raise Tesla.Error
     end
 
     assert Todoable.finish_item(state.client, list_id: "456-def", item_id: "654-wvu") == {:error, "The server is not available."}
