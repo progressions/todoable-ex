@@ -91,7 +91,7 @@ defmodule Todoable do
     |> post("/authenticate", %{})
     |> case do
       {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at, base_url: base_url}}
-      _ -> {:error, build_client()}
+      _                                                               -> {:error, build_client()}
     end
   end
 
@@ -100,12 +100,12 @@ defmodule Todoable do
 
       case response.status do
         code when code in 200..300 -> {:ok, parsed_body(response)}
-        401 -> {:error, "You are not authenticated."}
-        404 -> {:error, "Could not find resource."}
-        _ -> {:error, parsed_body(response)}
+        401                        -> {:error, "You are not authenticated."}
+        404                        -> {:error, "Could not find resource."}
+        _                          -> {:error, parsed_body(response)}
       end
     else
-      {:error, _} -> {:error, "The server is not available."}
+      {:error, _}         -> {:error, "The server is not available."}
     end
   end
 
