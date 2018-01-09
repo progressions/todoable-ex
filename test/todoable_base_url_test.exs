@@ -1,4 +1,4 @@
-defmodule TodoableTest do
+defmodule TodoableBaseUrlTest do
   use ExUnit.Case
 
   doctest Todoable
@@ -7,11 +7,11 @@ defmodule TodoableTest do
     [
       %{
         "name" => "Urgent Things",
-        "src" => "http://localhost:4000/api/lists/123-abc",
+        "src" => "http://todoable.com/api/lists/123-abc",
         "id" => "123-abc"
       }, %{
         "name" => "Shopping List",
-        "src" => "http://localhost:4000/api/lists/456-def",
+        "src" => "http://todoable.com/api/lists/456-def",
         "id" => "456-def"
       },
     ]
@@ -21,12 +21,12 @@ defmodule TodoableTest do
     [
       %{
         "name" => "Milk",
-        "src" => "http://localhost:4000/api/lists/123-abc/items/987-zyx",
+        "src" => "http://todoable.com/api/lists/123-abc/items/987-zyx",
         "id" => "987-zyx",
         "finished_at" => nil,
       }, %{
         "name" => "Bread",
-        "src" => "http://localhost:4000/api/lists/456-def/items/654-wvu",
+        "src" => "http://todoable.com/api/lists/456-def/items/654-wvu",
         "id" => "654-wvu",
         "finished_at" => "2018-01-02",
       },
@@ -35,28 +35,28 @@ defmodule TodoableTest do
 
   setup do
     Tesla.Mock.mock fn
-      %{method: :post, url: "http://localhost:4000/api/authenticate"} ->
+      %{method: :post, url: "http://todoable.com/api/authenticate"} ->
         %Tesla.Env{status: 200, body: %{"token" => "abc123", "expires_at" => "123"}}
-      %{method: :get, url: "http://localhost:4000/api/lists"} ->
+      %{method: :get, url: "http://todoable.com/api/lists"} ->
         %Tesla.Env{status: 200, body: %{"lists" => lists()}}
-      %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :get, url: "http://todoable.com/api/lists/123-abc"} ->
         %Tesla.Env{status: 200, body: List.first(lists())}
-      %{method: :post, url: "http://localhost:4000/api/lists"} ->
+      %{method: :post, url: "http://todoable.com/api/lists"} ->
         %Tesla.Env{status: 201, body: List.first(lists())}
-      %{method: :patch, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :patch, url: "http://todoable.com/api/lists/123-abc"} ->
         %Tesla.Env{status: 200, body: List.first(lists())}
-      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :delete, url: "http://todoable.com/api/lists/123-abc"} ->
         %Tesla.Env{status: 204, body: ""}
-      %{method: :post, url: "http://localhost:4000/api/lists/123-abc/items"} ->
+      %{method: :post, url: "http://todoable.com/api/lists/123-abc/items"} ->
         %Tesla.Env{status: 201, body: List.first(items())}
-      %{method: :put, url: "http://localhost:4000/api/lists/456-def/items/654-wvu/finish"} ->
+      %{method: :put, url: "http://todoable.com/api/lists/456-def/items/654-wvu/finish"} ->
         %Tesla.Env{status: 200, body: List.last(items())}
-      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc/items/987-zyx"} ->
+      %{method: :delete, url: "http://todoable.com/api/lists/123-abc/items/987-zyx"} ->
         %Tesla.Env{status: 204, body: ""}
     end
 
     {:ok, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password")
+    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
 
     {:ok, client: client}
   end
@@ -67,31 +67,31 @@ defmodule TodoableTest do
 
   test "authenticates client against server" do
     {:ok, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password")
+    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
 
-    assert client == %Todoable.Client{expires_at: "123", token: "abc123", base_url: "http://localhost:4000/api"}
+    assert client == %Todoable.Client{expires_at: "123", token: "abc123", base_url: "http://todoable.com/api"}
   end
 
   test "requests authentication with invalid credentials" do
     Tesla.Mock.mock fn
-      %{method: :post, url: "http://localhost:4000/api/authenticate"} ->
+      %{method: :post, url: "http://todoable.com/api/authenticate"} ->
         %Tesla.Env{status: 401, body: "unauthorized"}
     end
 
     {:error, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password")
+    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
 
     assert client == %Todoable.Client{expires_at: nil, token: nil}
   end
 
   test "requests authentication when server is not available" do
     Tesla.Mock.mock fn
-      %{method: :post, url: "http://localhost:4000/api/authenticate"} ->
+      %{method: :post, url: "http://todoable.com/api/authenticate"} ->
         raise Tesla.Error
     end
 
     {:error, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password")
+    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
 
     assert client == %Todoable.Client{expires_at: nil, token: nil}
   end
@@ -102,7 +102,7 @@ defmodule TodoableTest do
 
   test "requests all lists when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :get, url: "http://localhost:4000/api/lists"} ->
+      %{method: :get, url: "http://todoable.com/api/lists"} ->
         raise Tesla.Error
     end
 
@@ -111,7 +111,7 @@ defmodule TodoableTest do
 
   test "requests all lists with invalid credentials", state do
     Tesla.Mock.mock fn
-      %{method: :get, url: "http://localhost:4000/api/lists"} ->
+      %{method: :get, url: "http://todoable.com/api/lists"} ->
         %Tesla.Env{status: 401, body: "unauthorized"}
     end
 
@@ -124,7 +124,7 @@ defmodule TodoableTest do
 
   test "requests a single list when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :get, url: "http://todoable.com/api/lists/123-abc"} ->
         raise Tesla.Error
     end
 
@@ -133,7 +133,7 @@ defmodule TodoableTest do
 
   test "requests a single list which doesn't exist", state do
     Tesla.Mock.mock fn
-      %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :get, url: "http://todoable.com/api/lists/123-abc"} ->
         %Tesla.Env{status: 404, body: ""}
     end
 
@@ -146,7 +146,7 @@ defmodule TodoableTest do
 
   test "creates a list when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :post, url: "http://localhost:4000/api/lists"} ->
+      %{method: :post, url: "http://todoable.com/api/lists"} ->
         raise Tesla.Error
     end
 
@@ -159,7 +159,7 @@ defmodule TodoableTest do
 
   test "updates list when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :patch, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :patch, url: "http://todoable.com/api/lists/123-abc"} ->
         raise Tesla.Error
     end
 
@@ -172,7 +172,7 @@ defmodule TodoableTest do
 
   test "deletes list when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc"} ->
+      %{method: :delete, url: "http://todoable.com/api/lists/123-abc"} ->
         raise Tesla.Error
     end
 
@@ -185,7 +185,7 @@ defmodule TodoableTest do
 
   test "creates an item when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :post, url: "http://localhost:4000/api/lists/123-abc/items"} ->
+      %{method: :post, url: "http://todoable.com/api/lists/123-abc/items"} ->
         raise Tesla.Error
     end
 
@@ -198,7 +198,7 @@ defmodule TodoableTest do
 
   test "deletes an item when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :delete, url: "http://localhost:4000/api/lists/123-abc/items/987-zyx"} ->
+      %{method: :delete, url: "http://todoable.com/api/lists/123-abc/items/987-zyx"} ->
         raise Tesla.Error
     end
 
@@ -211,7 +211,7 @@ defmodule TodoableTest do
 
   test "finishes an item when server is not available", state do
     Tesla.Mock.mock fn
-      %{method: :put, url: "http://localhost:4000/api/lists/456-def/items/654-wvu/finish"} ->
+      %{method: :put, url: "http://todoable.com/api/lists/456-def/items/654-wvu/finish"} ->
         raise Tesla.Error
     end
 
