@@ -105,9 +105,8 @@ defmodule Todoable do
 
   defp parsed_body(response) do
     case response.headers["content-type"] do
-      "text/html;charset=utf-8" ->
-        with {:ok, body} <- Poison.decode(response.body), do: body
-      _ -> response.body
+      "text/html;charset=utf-8"    -> with {:ok, body} <- Poison.decode(response.body), do: body
+      _                            -> response.body
     end
   end
 
