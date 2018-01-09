@@ -136,15 +136,13 @@ defmodule Todoable do
     %Client{token: nil, expires_at: nil, base_url: base_url}
   end
 
-  @spec authenticate(client, username: String.t(), password: String.t()) :: client
-  @spec authenticate(client, username: String.t(), password: String.t(), base_url: String.t()) :: client
-  def authenticate(%Client{base_url: base_url}=client, username: username, password: password), do: authenticate(client, username: username, password: password, base_url: base_url)
-  def authenticate(%Client{token: _token, expires_at: _expires_at}, username: username, password: password, base_url: base_url) do
-    basic_auth(username: username, password: password, base_url: base_url)
+  @spec authenticate(client, username: String.t(), password: String.t()) :: {atom, client}
+  def authenticate(%Client{}=client, username: username, password: password) do
+    basic_auth(username: username, password: password, base_url: client.base_url)
     |> post("/authenticate", %{})
     |> case do
-      {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at, base_url: base_url}}
-      _                                                               -> {:error, build_client(base_url: base_url)}
+      {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at, base_url: client.base_url}}
+      _                                                               -> {:error, build_client(base_url: client.base_url)}
     end
   end
 

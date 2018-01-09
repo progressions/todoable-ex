@@ -70,8 +70,8 @@ defmodule TodoableBaseUrlTest do
   end
 
   test "authenticates client against server" do
-    {:ok, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
+    {:ok, client} = Todoable.build_client(base_url: "http://todoable.com/api")
+    |> Todoable.authenticate(username: "username", password: "password")
 
     assert client == %Todoable.Client{expires_at: "123", token: "abc123", base_url: "http://todoable.com/api"}
   end
@@ -82,8 +82,8 @@ defmodule TodoableBaseUrlTest do
         %Tesla.Env{status: 401, body: "unauthorized"}
     end
 
-    {:error, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
+    {:error, client} = Todoable.build_client(base_url: "http://todoable.com/api")
+    |> Todoable.authenticate(username: "username", password: "password")
 
     assert client == %Todoable.Client{expires_at: nil, token: nil, base_url: "http://todoable.com/api"}
   end
@@ -94,8 +94,8 @@ defmodule TodoableBaseUrlTest do
         raise Tesla.Error
     end
 
-    {:error, client} = Todoable.build_client()
-    |> Todoable.authenticate(username: "username", password: "password", base_url: "http://todoable.com/api")
+    {:error, client} = Todoable.build_client(base_url: "http://todoable.com/api")
+    |> Todoable.authenticate(username: "username", password: "password")
 
     assert client == %Todoable.Client{expires_at: nil, token: nil, base_url: "http://todoable.com/api"}
   end
