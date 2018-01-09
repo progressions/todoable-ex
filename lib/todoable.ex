@@ -6,17 +6,17 @@ defmodule Todoable do
   use Tesla
 
   plug Tesla.Middleware.Tuples
-  plug Tesla.Middleware.BaseUrl, "http://localhost:4000/api"
   plug Tesla.Middleware.JSON
 
   defmodule Client do
     defstruct token: nil,
-              expires_at: nil
+              expires_at: nil,
+              base_url: nil
   end
 
-  def lists(%Client{token: token}) do
+  def lists(%Client{token: token, base_url: base_url}) do
     req(fn () ->
-      token_auth(token)
+      token_auth(token, base_url)
       |> get("/lists")
     end)
 
@@ -76,15 +76,16 @@ defmodule Todoable do
   end
 
   def build_client() do
-    %Client{token: nil, expires_at: nil}
+    %Client{token: nil, expires_at: nil, base_url: nil}
   end
 
-  def authenticate(%Client{token: _token, expires_at: _expires_at}, username: username, password: password) do
-    basic_auth(username: username, password: password)
+  def authenticate(client, username: username, password: password), do: authenticate(client, username: username, password: password, base_url: "http://localhost:4000/api")
+  def authenticate(%Client{token: _token, expires_at: _expires_at}, username: username, password: password, base_url: base_url) do
+    basic_auth(username: username, password: password, base_url: base_url)
     |> post("/authenticate", %{})
     |> case do
-      {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at}}
-      _ -> {:error, %Client{token: nil, expires_at: nil}}
+      {:ok, %{body: %{"token" => token, "expires_at" => expires_at}}} -> {:ok, %Client{token: token, expires_at: expires_at, base_url: base_url}}
+      _ -> {:error, build_client()}
     end
   end
 
@@ -102,15 +103,21 @@ defmodule Todoable do
     end
   end
 
-  defp token_auth(token) do
+  defp token_auth(token), do: token_auth(token, "http://localhost:4000/api")
+  defp token_auth(token, base_url) do
     Tesla.build_client([
-      {Tesla.Middleware.Headers, %{"Authorization" => "Token token=\"#{token}\""}}
+      {Tesla.Middleware.BaseUrl, base_url},
+      {Tesla.Middleware.Headers, %{"Accept" => "application/json", "Content-Type" => "application/json", "Authorization" => "Token token=\"#{token}\""}},
     ])
   end
 
-  defp basic_auth(username: username, password: password) do
+  defp basic_auth(username: username, password: password), do:
+    basic_auth(username: username, password: password, base_url: "http://localhost:4000/api")
+  defp basic_auth(username: username, password: password, base_url: base_url) do
     Tesla.build_client([
-      {Tesla.Middleware.BasicAuth, Map.merge(%{username: username, password: password}, %{})}
+      {Tesla.Middleware.BaseUrl, base_url},
+      {Tesla.Middleware.Headers, %{"Accept" => "application/json", "Content-Type" => "application/json"}},
+      {Tesla.Middleware.BasicAuth, Map.merge(%{username: username, password: password}, %{})},
     ])
   end
 end

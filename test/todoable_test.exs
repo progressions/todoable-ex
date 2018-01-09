@@ -69,7 +69,7 @@ defmodule TodoableTest do
     {:ok, client} = Todoable.build_client()
     |> Todoable.authenticate(username: "username", password: "password")
 
-    assert client == %Todoable.Client{expires_at: "123", token: "abc123"}
+    assert client == %Todoable.Client{expires_at: "123", token: "abc123", base_url: "http://localhost:4000/api"}
   end
 
   test "requests authentication with invalid credentials" do
