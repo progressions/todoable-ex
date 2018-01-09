@@ -11,9 +11,7 @@ defmodule Todoable do
   @default_base_url "http://localhost:4000/api"
 
   defmodule Client do
-    defstruct token: nil,
-              expires_at: nil,
-              base_url: nil
+    defstruct [:token, :expires_at, :base_url]
   end
 
   def c do
