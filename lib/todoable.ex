@@ -99,7 +99,7 @@ defmodule Todoable do
         _                          -> {:error, parsed_body(response)}
       end
     else
-      {:error, _}         -> {:error, "The server is not available."}
+      {:error, _}                  -> {:error, "The server is not available."}
     end
   end
 
