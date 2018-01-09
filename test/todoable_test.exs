@@ -62,7 +62,7 @@ defmodule TodoableTest do
   end
 
   test "builds a client" do
-    assert Todoable.build_client() == %Todoable.Client{expires_at: nil, token: nil}
+    assert Todoable.build_client() == %Todoable.Client{expires_at: nil, token: nil, base_url: "http://localhost:4000/api"}
   end
 
   test "authenticates client against server" do
@@ -81,7 +81,7 @@ defmodule TodoableTest do
     {:error, client} = Todoable.build_client()
     |> Todoable.authenticate(username: "username", password: "password")
 
-    assert client == %Todoable.Client{expires_at: nil, token: nil}
+    assert client == %Todoable.Client{expires_at: nil, token: nil, base_url: "http://localhost:4000/api"}
   end
 
   test "requests authentication when server is not available" do
@@ -93,7 +93,7 @@ defmodule TodoableTest do
     {:error, client} = Todoable.build_client()
     |> Todoable.authenticate(username: "username", password: "password")
 
-    assert client == %Todoable.Client{expires_at: nil, token: nil}
+    assert client == %Todoable.Client{expires_at: nil, token: nil, base_url: "http://localhost:4000/api"}
   end
 
   test "requests all lists", state do
