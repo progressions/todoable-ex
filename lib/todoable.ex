@@ -17,7 +17,7 @@ defmodule Todoable do
   def lists(%Client{token: token}) do
     req(fn () ->
       token_auth(token)
-      |> get("/lists")
+      get("/lists")
     end)
 
     |> case do
@@ -89,7 +89,8 @@ defmodule Todoable do
   end
 
   defp req(fun) do
-    with {:ok, response} <- fun.() do
+    with {:ok, response}  <- fun.() do
+
       case response.status do
         code when code in 200..300 -> {:ok, response.body}
         401 -> {:error, "You are not authenticated."}
