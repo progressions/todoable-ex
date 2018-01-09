@@ -127,7 +127,7 @@ defmodule Todoable do
   defp basic_auth(username: username, password: password, base_url: base_url) do
     Tesla.build_client([
       {Tesla.Middleware.BaseUrl, base_url},
-      {Tesla.Middleware.Headers, %{"Accept" => "application/json", "Content-Type" => @default_base_url}},
+      {Tesla.Middleware.Headers, %{"Accept" => "application/json", "Content-Type" => "application/json"}},
       {Tesla.Middleware.BasicAuth, Map.merge(%{username: username, password: password}, %{})},
     ])
   end
