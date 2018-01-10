@@ -14,11 +14,19 @@ defmodule Todoable do
   defmodule Client do
     defstruct [:token, :expires_at, :base_url]
   end
-  @type client :: %Todoable.Client{}
 
+  defmodule List do
+    defstruct [:id, :name, :src]
+  end
+
+  defmodule Item do
+    defstruct [:id, :name, :src, :finished_at, :list_id]
+  end
+
+  @type client :: %Todoable.Client{}
+  @type todo_list :: %Todoable.List{}
+  @type todo_item :: %Todoable.Item{}
   @type uuid :: String.t()
-  @type todo_list :: %{id: uuid, name: String.t(), src: String.t()}
-  @type todo_item :: %{id: uuid, name: String.t(), src: String.t(), finished_at: String.t(), list_id: uuid}
 
   @doc """
   Returns all the lists for the authenticated user on the Todo server.
@@ -31,7 +39,7 @@ defmodule Todoable do
     end)
 
     |> case do
-      {:ok, body}     -> {:ok, body["lists"]}
+      {:ok, body}     -> {:ok, Enum.map(body["lists"], &(build_list(&1)))}
       {:error, body}  -> {:error, body}
     end
   end
@@ -45,6 +53,11 @@ defmodule Todoable do
       token_auth(token, base_url)
       |> get("/lists/#{list_id}")
     end)
+
+    |> case do
+      {:ok, body}     -> {:ok, build_list(body)}
+      {:error, body}  -> {:error, body}
+    end
   end
 
   @doc """
@@ -56,6 +69,11 @@ defmodule Todoable do
       token_auth(token, base_url)
       |> post("/lists", %{list: %{name: name}})
     end)
+
+    |> case do
+      {:ok, body}     -> {:ok, build_list(body)}
+      {:error, body}  -> {:error, body}
+    end
   end
 
   @doc """
@@ -67,6 +85,11 @@ defmodule Todoable do
       token_auth(token, base_url)
       |> patch("/lists/#{list_id}", %{list: %{name: name}})
     end)
+
+    |> case do
+      {:ok, body}     -> {:ok, build_list(body)}
+      {:error, body}  -> {:error, body}
+    end
   end
 
   @doc """
@@ -89,6 +112,11 @@ defmodule Todoable do
       token_auth(token, base_url)
       |> post("/lists/#{list_id}/items", %{item: %{name: name}})
     end)
+
+    |> case do
+      {:ok, body}     -> {:ok, build_item(body)}
+      {:error, body}  -> {:error, body}
+    end
   end
 
   @doc """
@@ -111,6 +139,11 @@ defmodule Todoable do
       token_auth(token, base_url)
       |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
     end)
+
+    |> case do
+      {:ok, body}     -> {:ok, build_item(body)}
+      {:error, body}  -> {:error, body}
+    end
   end
 
   @doc """
@@ -145,6 +178,14 @@ defmodule Todoable do
     else
       {:error, _}                  -> {:error, "The server is not available."}
     end
+  end
+
+  def build_list(list) do
+    %List{id: list["id"], name: list["name"], src: list["src"]}
+  end
+
+  def build_item(item) do
+    %Item{id: item["id"], name: item["name"], src: item["src"], finished_at: item["finished_at"], list_id: item["list_id"]}
   end
 
   @spec parsed_body(response :: struct) :: any
