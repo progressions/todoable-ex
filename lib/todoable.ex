@@ -114,7 +114,7 @@ defmodule Todoable do
     end)
 
     |> case do
-      {:ok, body}     -> {:ok, build_item(body)}
+      {:ok, body}     -> {:ok, build_item(list_id, body)}
       {:error, body}  -> {:error, body}
     end
   end
@@ -141,7 +141,7 @@ defmodule Todoable do
     end)
 
     |> case do
-      {:ok, body}     -> {:ok, build_item(body)}
+      {:ok, body}     -> {:ok, build_item(list_id, body)}
       {:error, body}  -> {:error, body}
     end
   end
@@ -181,11 +181,13 @@ defmodule Todoable do
   end
 
   defp build_list(%{"items" => items} = list) when not is_nil(items) do
-    %List{id: list["id"], name: list["name"], src: list["src"], items: Enum.map(list["items"], &(build_item(&1)))}
+    %List{id: list["id"], name: list["name"], src: list["src"], items: Enum.map(list["items"], &(build_item(list["id"], &1)))}
   end
-  defp build_list(list), do: %List{id: list["id"], name: list["name"], src: list["src"], items: []}
+  defp build_list(list), do: %List{id: list["id"], name: list["name"], src: list["src"]}
 
-  defp build_item(item), do: %Item{id: item["id"], name: item["name"], src: item["src"], finished_at: item["finished_at"], list_id: item["list_id"]}
+  defp build_item(list_id, item) do
+    %Item{id: item["id"], name: item["name"], src: item["src"], finished_at: item["finished_at"], list_id: list_id}
+  end
 
   @spec parsed_body(response :: struct) :: any
   defp parsed_body(response) do

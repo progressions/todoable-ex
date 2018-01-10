@@ -108,7 +108,7 @@ defmodule TodoableTest do
   end
 
   test "requests all lists", state do
-    assert Todoable.lists(state.client) == {:ok, [%Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: []}, %Todoable.List{id: "456-def", name: "Shopping List", src: "http://localhost:4000/api/lists/456-def", items: []}]}
+    assert Todoable.lists(state.client) == {:ok, [%Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}, %Todoable.List{id: "456-def", name: "Shopping List", src: "http://localhost:4000/api/lists/456-def", items: nil}]}
   end
 
   test "requests all lists when server is not available", state do
@@ -152,7 +152,7 @@ defmodule TodoableTest do
   end
 
   test "creates a list", state do
-    assert Todoable.create_list(state.client, name: "Shopping") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: []}}
+    assert Todoable.create_list(state.client, name: "Shopping") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}}
   end
 
   test "creates a list when server is not available", state do
@@ -165,7 +165,7 @@ defmodule TodoableTest do
   end
 
   test "updates list", state do
-    assert Todoable.update_list(state.client, id: "123-abc", name: "Groceries") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: []}}
+    assert Todoable.update_list(state.client, id: "123-abc", name: "Groceries") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}}
   end
 
   test "updates list when server is not available", state do
@@ -217,7 +217,7 @@ defmodule TodoableTest do
   end
 
   test "finishes an item", state do
-    assert Todoable.finish_item(state.client, list_id: "456-def", item_id: "654-wvu") == {:ok, %Todoable.Item{finished_at: "2018-01-02", id: "654-wvu", name: "Bread", src: "http://localhost:4000/api/lists/456-def/items/654-wvu", list_id: "123-abc"}}
+    assert Todoable.finish_item(state.client, list_id: "456-def", item_id: "654-wvu") == {:ok, %Todoable.Item{finished_at: "2018-01-02", id: "654-wvu", name: "Bread", src: "http://localhost:4000/api/lists/456-def/items/654-wvu", list_id: "456-def"}}
   end
 
   test "finishes an item when server is not available", state do
