@@ -16,7 +16,7 @@ defmodule Todoable do
   end
 
   defmodule List do
-    defstruct [:id, :name, :src, :items]
+    defstruct [:id, :name, :src, items: :not_loaded]
   end
 
   defmodule Item do

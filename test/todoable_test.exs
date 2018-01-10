@@ -108,7 +108,7 @@ defmodule TodoableTest do
   end
 
   test "requests all lists", state do
-    assert Todoable.lists(state.client) == {:ok, [%Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}, %Todoable.List{id: "456-def", name: "Shopping List", src: "http://localhost:4000/api/lists/456-def", items: nil}]}
+    assert Todoable.lists(state.client) == {:ok, [%Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: :not_loaded}, %Todoable.List{id: "456-def", name: "Shopping List", src: "http://localhost:4000/api/lists/456-def", items: :not_loaded}]}
   end
 
   test "requests all lists when server is not available", state do
@@ -152,7 +152,7 @@ defmodule TodoableTest do
   end
 
   test "creates a list", state do
-    assert Todoable.create_list(state.client, name: "Shopping") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}}
+    assert Todoable.create_list(state.client, name: "Shopping") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: :not_loaded}}
   end
 
   test "creates a list when server is not available", state do
@@ -165,7 +165,7 @@ defmodule TodoableTest do
   end
 
   test "updates list", state do
-    assert Todoable.update_list(state.client, id: "123-abc", name: "Groceries") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: nil}}
+    assert Todoable.update_list(state.client, id: "123-abc", name: "Groceries") == {:ok, %Todoable.List{id: "123-abc", name: "Urgent Things", src: "http://localhost:4000/api/lists/123-abc", items: :not_loaded}}
   end
 
   test "updates list when server is not available", state do
