@@ -16,7 +16,7 @@ defmodule Todoable do
   end
 
   defmodule List do
-    defstruct [:id, :name, :src]
+    defstruct [:id, :name, :src, :items]
   end
 
   defmodule Item do
@@ -181,7 +181,7 @@ defmodule Todoable do
   end
 
   def build_list(list) do
-    %List{id: list["id"], name: list["name"], src: list["src"]}
+    %List{id: list["id"], name: list["name"], src: list["src"], items: list["items"]}
   end
 
   def build_item(item) do
