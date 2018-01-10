@@ -180,13 +180,12 @@ defmodule Todoable do
     end
   end
 
-  def build_list(list) do
-    %List{id: list["id"], name: list["name"], src: list["src"], items: list["items"]}
+  defp build_list(%{"items" => items} = list) when not is_nil(items) do
+    %List{id: list["id"], name: list["name"], src: list["src"], items: Enum.map(list["items"], &(build_item(&1)))}
   end
+  defp build_list(list), do: %List{id: list["id"], name: list["name"], src: list["src"], items: []}
 
-  def build_item(item) do
-    %Item{id: item["id"], name: item["name"], src: item["src"], finished_at: item["finished_at"], list_id: item["list_id"]}
-  end
+  defp build_item(item), do: %Item{id: item["id"], name: item["name"], src: item["src"], finished_at: item["finished_at"], list_id: item["list_id"]}
 
   @spec parsed_body(response :: struct) :: any
   defp parsed_body(response) do
