@@ -22,20 +22,6 @@ defmodule Todoable do
 
   @doc """
   Returns all the lists for the authenticated user on the Todo server.
-
-  {:ok, client} = Todoable.build_client() |> Todoable.authenticate(username: "username", password: "password")
-  {:ok,
-   %Todoable.Client{base_url: "http://localhost:4000/api",
-    expires_at: "2018-01-09 23:33:49.843257",
-    token: "98ad1863-19b0-4de1-9d85-cf27d53423f0"}}
-
-  Todoable.lists(client)
-  {:ok,
-   [%{"id" => "9797e12e-32c4-4b3b-b68f-c534fbac5097", "name" => "SHOP",
-      "src" => "http://localhost:4000/lists/9797e12e-32c4-4b3b-b68f-c534fbac5097"},
-    %{"id" => "49e85b14-e6b6-4c4d-87b9-738f3b69423d", "name" => "SHOPPING",
-      "src" => "http://localhost:4000/lists/49e85b14-e6b6-4c4d-87b9-738f3b69423d"}]}
-
   """
   @spec lists(client :: client) :: {atom, [todo_list]}
   def lists(%Client{token: token, base_url: base_url}) do
