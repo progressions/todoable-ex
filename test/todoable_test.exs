@@ -33,6 +33,15 @@ defmodule TodoableTest do
     ]
   end
 
+  def list_with_items do
+    %{
+      "name" => "Urgent Things",
+      "src" => "http://localhost:4000/api/lists/123-abc",
+      "id" => "123-abc",
+      "items" => items(),
+    }
+  end
+
   setup do
     Tesla.Mock.mock fn
       %{method: :post, url: "http://localhost:4000/api/authenticate"} ->
@@ -40,7 +49,7 @@ defmodule TodoableTest do
       %{method: :get, url: "http://localhost:4000/api/lists"} ->
         %Tesla.Env{status: 200, body: %{"lists" => lists()}}
       %{method: :get, url: "http://localhost:4000/api/lists/123-abc"} ->
-        %Tesla.Env{status: 200, body: List.first(lists())}
+        %Tesla.Env{status: 200, body: list_with_items()}
       %{method: :post, url: "http://localhost:4000/api/lists"} ->
         %Tesla.Env{status: 201, body: List.first(lists())}
       %{method: :patch, url: "http://localhost:4000/api/lists/123-abc"} ->
@@ -119,7 +128,7 @@ defmodule TodoableTest do
   end
 
   test "requests a single list", state do
-    assert Todoable.get_list(state.client, id: "123-abc") == {:ok, List.first(lists())}
+    assert Todoable.get_list(state.client, id: "123-abc") == {:ok, %{"id" => "123-abc", "name" => "Urgent Things", "src" => "http://localhost:4000/api/lists/123-abc", "items" => [%{"finished_at" => nil, "id" => "987-zyx", "name" => "Milk", "src" => "http://localhost:4000/api/lists/123-abc/items/987-zyx"}, %{"finished_at" => "2018-01-02", "id" => "654-wvu", "name" => "Bread", "src" => "http://localhost:4000/api/lists/456-def/items/654-wvu"}]}}
   end
 
   test "requests a single list when server is not available", state do
