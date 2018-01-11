@@ -47,6 +47,7 @@ defmodule Todoable do
   @doc """
   Returns a specific list item from the Todo server.
   """
+  def get_list(client, %List{id: list_id}), do: get_list(client, id: list_id)
   @spec get_list(client, id :: uuid) :: {atom, todo_list}
   def get_list(%Client{token: token, base_url: base_url}, id: list_id) do
     req(fn () ->
@@ -79,6 +80,7 @@ defmodule Todoable do
   @doc """
   Updates the name of a list on the Todo server.
   """
+  def update_list(client, %List{id: list_id, name: name}), do: update_list(client, id: list_id, name: name)
   @spec update_list(client, id: uuid, name: String.t()) :: {atom, todo_list}
   def update_list(%Client{token: token, base_url: base_url}, id: list_id, name: name) do
     req(fn () ->
@@ -95,6 +97,7 @@ defmodule Todoable do
   @doc """
   Deletes a list from the Todo server.
   """
+  def delete_list(client, %List{id: list_id}), do: delete_list(client, id: list_id)
   @spec delete_list(client, id: uuid) :: {atom, String.t()}
   def delete_list(%Client{token: token, base_url: base_url}, id: list_id) do
     req(fn () ->
@@ -106,6 +109,7 @@ defmodule Todoable do
   @doc """
   Creates an item for a given list on the Todo server.
   """
+  def create_item(client, %List{id: list_id}, name: name), do: create_item(client, list_id: list_id, name: name)
   @spec create_item(client, list_id: uuid, name: String.t()) :: {atom, todo_item}
   def create_item(%Client{token: token, base_url: base_url}, list_id: list_id, name: name) do
     req(fn () ->
@@ -122,6 +126,7 @@ defmodule Todoable do
   @doc """
   Deletes an item from a given list on the Todo server.
   """
+  def delete_item(client, %Item{list_id: list_id, id: item_id}), do: delete_item(client, list_id: list_id, item_id: item_id)
   @spec delete_item(client, list_id: uuid, item_id: uuid) :: {atom, String.t()}
   def delete_item(%Client{token: token, base_url: base_url}, list_id: list_id, item_id: item_id) do
     req(fn () ->
@@ -133,6 +138,7 @@ defmodule Todoable do
   @doc """
   Marks an item as finished on the Todo server.
   """
+  def finish_item(client, %Item{list_id: list_id, id: item_id}), do: finish_item(client, list_id: list_id, item_id: item_id)
   @spec finish_item(client, list_id: uuid, item_id: uuid) :: {atom, todo_item}
   def finish_item(%Client{token: token, base_url: base_url}, list_id: list_id, item_id: item_id) do
     req(fn () ->
