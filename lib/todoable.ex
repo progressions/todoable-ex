@@ -49,7 +49,7 @@ defmodule Todoable do
 
   If passed a List struct, the List struct will be fetched, including all its Items.
   """
-  @spec get_lists(client, todo_list) :: {atom, todo_list}
+  @spec get_list(client, todo_list) :: {atom, todo_list}
   def get_list(client, %List{id: list_id}), do: get_list(client, id: list_id)
   @spec get_list(client, id :: uuid) :: {atom, todo_list}
   def get_list(%Client{token: token, base_url: base_url}, id: list_id) do
