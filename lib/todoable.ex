@@ -16,7 +16,7 @@ defmodule Todoable do
   end
 
   defmodule List do
-    defstruct [:id, :name, :src, items: :not_loaded]
+    defstruct [:id, :name, :src, :user_id, items: :not_loaded]
   end
 
   defmodule Item do
@@ -172,8 +172,8 @@ defmodule Todoable do
     %Client{token: nil, expires_at: nil, base_url: base_url}
   end
 
-  @spec authenticate(client, username: String.t(), password: String.t()) :: {atom, client}
-  def authenticate(%Client{} = client, username: username, password: password) do
+  @spec authenticate(client, String.t(), String.t()) :: {atom, client}
+  def authenticate(%Client{} = client, username, password) do
     basic_auth(username: username, password: password, base_url: client.base_url)
     |> post("/authenticate", %{})
     |> case do
@@ -202,9 +202,10 @@ defmodule Todoable do
   defp build_list(%{"items" => items} = list) when not is_nil(items) do
     %List{
       id: list["id"],
+      items: Enum.map(list["items"], &build_item(list["id"], &1)),
       name: list["name"],
       src: list["src"],
-      items: Enum.map(list["items"], &build_item(list["id"], &1))
+      user_id: list["user_id"]
     }
   end
 

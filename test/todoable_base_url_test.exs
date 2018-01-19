@@ -67,7 +67,7 @@ defmodule TodoableBaseUrlTest do
 
     {:ok, client} =
       Todoable.build_client(base_url: "http://todoable.com/api")
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     {:ok, client: client}
   end
@@ -91,7 +91,7 @@ defmodule TodoableBaseUrlTest do
   test "authenticates client against server" do
     {:ok, client} =
       Todoable.build_client(base_url: "http://todoable.com/api")
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: "123",
@@ -107,7 +107,7 @@ defmodule TodoableBaseUrlTest do
 
     {:error, client} =
       Todoable.build_client(base_url: "http://todoable.com/api")
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: nil,
@@ -123,7 +123,7 @@ defmodule TodoableBaseUrlTest do
 
     {:error, client} =
       Todoable.build_client(base_url: "http://todoable.com/api")
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: nil,

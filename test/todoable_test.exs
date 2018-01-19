@@ -78,7 +78,7 @@ defmodule TodoableTest do
 
     {:ok, client} =
       Todoable.build_client()
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     {:ok, client: client}
   end
@@ -94,7 +94,7 @@ defmodule TodoableTest do
   test "authenticates client against server" do
     {:ok, client} =
       Todoable.build_client()
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: "123",
@@ -110,7 +110,7 @@ defmodule TodoableTest do
 
     {:error, client} =
       Todoable.build_client()
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: nil,
@@ -126,7 +126,7 @@ defmodule TodoableTest do
 
     {:error, client} =
       Todoable.build_client()
-      |> Todoable.authenticate(username: "username", password: "password")
+      |> Todoable.authenticate("username", "password")
 
     assert client == %Todoable.Client{
              expires_at: nil,
