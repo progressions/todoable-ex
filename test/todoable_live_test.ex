@@ -25,8 +25,8 @@ defmodule TodoableBaseUrlTest do
 
   test "acts on lists", state do
     {:ok, lists} = Todoable.lists(state.client)
-    matches = Enum.filter(lists, fn(list) -> list.name == "Shopping List" end)
-    Enum.each(matches, fn(list) -> Todoable.delete_list(state.client, list) end)
+    matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
+    Enum.each(matches, fn list -> Todoable.delete_list(state.client, list) end)
 
     # Create list
     #
@@ -37,7 +37,7 @@ defmodule TodoableBaseUrlTest do
     # Check that new list is included in all lists
     #
     {:ok, lists} = Todoable.lists(state.client)
-    matches = Enum.filter(lists, fn(list) -> list.name == "Shopping List" end)
+    matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(matches) > 0
 
     # Create an item
@@ -49,12 +49,13 @@ defmodule TodoableBaseUrlTest do
 
     # Finish an item
     #
-    {:ok, "Get some milk finished"} = Todoable.finish_item(state.client, list_id: list.id, item_id: item.id)
+    {:ok, "Get some milk finished"} =
+      Todoable.finish_item(state.client, list_id: list.id, item_id: item.id)
 
     # Get list, check that item exists on it
     #
     {:ok, list} = Todoable.get_list(state.client, list)
-    items = Enum.filter(list.items, fn(item) -> item.name == "Get some milk" end)
+    items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) > 0
 
     # Delete item
@@ -64,7 +65,7 @@ defmodule TodoableBaseUrlTest do
     # Get list, check that delete item doesn't exist on it
     #
     {:ok, list} = Todoable.get_list(state.client, id: list_id)
-    items = Enum.filter(list.items, fn(item) -> item.name == "Get some milk" end)
+    items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) == 0
 
     # Delete list
@@ -74,7 +75,7 @@ defmodule TodoableBaseUrlTest do
     # Check that the deleted list doesn't appear in all lists
     #
     {:ok, lists} = Todoable.lists(state.client)
-    new_matches = Enum.filter(lists, fn(list) -> list.name == "Shopping List" end)
+    new_matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(new_matches) == length(matches) - 1
   end
 end

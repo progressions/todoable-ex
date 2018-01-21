@@ -21,4 +21,4 @@ use Mix.Config
 #     config :logger, level: :info
 #
 
-# config :tesla, adapter: :mock
+config :tesla, adapter: :mock

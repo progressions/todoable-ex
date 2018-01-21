@@ -224,12 +224,15 @@ defmodule Todoable do
   @spec parsed_body(response :: struct) :: any
   defp parsed_body(response) do
     case response.headers["content-type"] do
-      "text/html;charset=utf-8" -> with {:ok, body} <- Poison.decode(response.body) do
-        body
-      else
-        {:error, _} -> response.body
-      end
-      _ -> response.body
+      "text/html;charset=utf-8" ->
+        with {:ok, body} <- Poison.decode(response.body) do
+          body
+        else
+          {:error, _} -> response.body
+        end
+
+      _ ->
+        response.body
     end
   end
 

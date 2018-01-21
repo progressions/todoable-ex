@@ -59,7 +59,8 @@ defmodule TodoableBaseUrlTest do
         %Tesla.Env{status: 201, body: List.first(items())}
 
       %{method: :put, url: "http://todoable.com/api/lists/456-def/items/654-wvu/finish"} ->
-        %Tesla.Env{status: 200, body: List.last(items())}
+        item = List.last(items())
+        %Tesla.Env{status: 200, body: "#{item["name"]} finished"}
 
       %{method: :delete, url: "http://todoable.com/api/lists/123-abc/items/987-zyx"} ->
         %Tesla.Env{status: 204, body: ""}
@@ -287,14 +288,7 @@ defmodule TodoableBaseUrlTest do
 
   test "finishes an item", state do
     assert Todoable.finish_item(state.client, list_id: "456-def", item_id: "654-wvu") ==
-             {:ok,
-              %Todoable.Item{
-                finished_at: "2018-01-02",
-                id: "654-wvu",
-                list_id: "456-def",
-                name: "Bread",
-                src: "http://todoable.com/api/lists/456-def/items/654-wvu"
-              }}
+             {:ok, "Bread finished"}
   end
 
   test "finishes an item when server is not available", state do
