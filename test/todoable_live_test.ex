@@ -3,13 +3,17 @@ defmodule TodoableBaseUrlTest do
 
   doctest Todoable
 
+  @base_url "http://todoable.teachable.tech/api/"
+  @username "progressions@gmail.com"
+  @password "todoable"
+
   @base_url "https://intense-hamlet-87296.herokuapp.com/api"
   @username "username"
   @password "password"
 
-  @base_url "http://todoable.teachable.tech/api/"
-  @username "progressions@gmail.com"
-  @password "todoable"
+  @base_url "http://localhost:4000/api"
+  @username "username"
+  @password "password"
 
   setup do
     {:ok, client} =
@@ -17,22 +21,6 @@ defmodule TodoableBaseUrlTest do
       |> Todoable.authenticate(@username, @password)
 
     {:ok, client: client}
-  end
-
-  test "builds a client with given base_url" do
-    assert Todoable.build_client(base_url: @base_url) == %Todoable.Client{
-             expires_at: nil,
-             token: nil,
-             base_url: @base_url
-           }
-  end
-
-  test "authenticates client against server" do
-    {:ok, client} =
-      Todoable.build_client(base_url: @base_url)
-      |> Todoable.authenticate(@username, @password)
-
-    assert %Todoable.Client{token: _, expires_at: _, base_url: @base_url} = client
   end
 
   test "acts on lists", state do
@@ -67,6 +55,7 @@ defmodule TodoableBaseUrlTest do
     #
     {:ok, list} = Todoable.get_list(state.client, list)
     items = Enum.filter(list.items, fn(item) -> item.name == "Get some milk" end)
+    assert length(items) > 0
 
     # Delete item
     #
@@ -80,7 +69,7 @@ defmodule TodoableBaseUrlTest do
 
     # Delete list
     #
-    assert Todoable.delete_list(state.client, list) == {:ok, ""}
+    assert Todoable.delete_list(state.client, id: list_id) == {:ok, ""}
 
     # Check that the deleted list doesn't appear in all lists
     #
