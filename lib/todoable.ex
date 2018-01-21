@@ -157,7 +157,7 @@ defmodule Todoable do
       |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
     end)
     |> case do
-      {:ok, body} -> {:ok, build_item(list_id, body)}
+      {:ok, body} -> {:ok, body}
       {:error, body} -> {:error, body}
     end
   end
@@ -224,7 +224,11 @@ defmodule Todoable do
   @spec parsed_body(response :: struct) :: any
   defp parsed_body(response) do
     case response.headers["content-type"] do
-      "text/html;charset=utf-8" -> with {:ok, body} <- Poison.decode(response.body), do: body
+      "text/html;charset=utf-8" -> with {:ok, body} <- Poison.decode(response.body) do
+        body
+      else
+        {:error, _} -> response.body
+      end
       _ -> response.body
     end
   end
