@@ -57,7 +57,7 @@ defmodule Todoable do
       |> get("/lists/#{list_id}")
     end)
     |> case do
-      {:ok, body} -> {:ok, build_list(body)}
+      {:ok, body} -> {:ok, build_list(body, id: list_id)}
       {:error, body} -> {:error, body}
     end
   end
@@ -157,7 +157,7 @@ defmodule Todoable do
       |> put("/lists/#{list_id}/items/#{item_id}/finish", %{})
     end)
     |> case do
-      {:ok, body} -> {:ok, build_item(list_id, body)}
+      {:ok, body} -> {:ok, body}
       {:error, body} -> {:error, body}
     end
   end
@@ -199,16 +199,17 @@ defmodule Todoable do
     end
   end
 
-  defp build_list(%{"items" => items} = list) when not is_nil(items) do
+  defp build_list(%{"items" => items} = list, id: list_id) when not is_nil(items) do
     %List{
-      id: list["id"],
-      items: Enum.map(list["items"], &build_item(list["id"], &1)),
+      id: list["id"] || list_id,
+      items: Enum.map(list["items"], &build_item(list["id"] || list_id, &1)),
       name: list["name"],
       src: list["src"],
       user_id: list["user_id"]
     }
   end
 
+  defp build_list(list, id: list_id), do: %List{id: list["id"] || list_id, name: list["name"], src: list["src"]}
   defp build_list(list), do: %List{id: list["id"], name: list["name"], src: list["src"]}
 
   defp build_item(list_id, item) do
@@ -224,8 +225,15 @@ defmodule Todoable do
   @spec parsed_body(response :: struct) :: any
   defp parsed_body(response) do
     case response.headers["content-type"] do
-      "text/html;charset=utf-8" -> with {:ok, body} <- Poison.decode(response.body), do: body
-      _ -> response.body
+      "text/html;charset=utf-8" ->
+        with {:ok, body} <- Poison.decode(response.body) do
+          body
+        else
+          {:error, _} -> response.body
+        end
+
+      _ ->
+        response.body
     end
   end
 
