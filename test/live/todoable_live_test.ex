@@ -43,7 +43,7 @@ defmodule TodoableBaseUrlTest do
     #
     {:ok, list} = Todoable.create_list(state.client, name: "Shopping List")
     assert list.name == "Shopping List"
-    list_id = list.id
+    assert list.id != nil
 
     # Check that new list is included in all lists
     #
@@ -51,41 +51,41 @@ defmodule TodoableBaseUrlTest do
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(matches) > 0
 
-    {:ok, list} = Todoable.get_list(state.client, id: list_id)
+    {:ok, list} = Todoable.get_list(state.client, id: list.id)
     Enum.each(list.items, fn item ->
-      Todoable.delete_item(state.client, list_id: list_id, item_id: item.id)
+      Todoable.delete_item(state.client, list_id: list.id, item_id: item.id)
     end)
 
     # Create an item
     #
-    {:ok, item} = Todoable.create_item(state.client, list_id: list_id, name: "Get some milk")
+    {:ok, item} = Todoable.create_item(state.client, list_id: list.id, name: "Get some milk")
     assert item.name == "Get some milk"
     assert item.finished_at == nil
 
     # Finish an item
     #
     {:ok, "Get some milk finished"} =
-      Todoable.finish_item(state.client, list_id: list_id, item_id: item.id)
+      Todoable.finish_item(state.client, list_id: list.id, item_id: item.id)
 
     # Get list, check that item exists on it
     #
-    {:ok, list} = Todoable.get_list(state.client, id: list_id)
+    {:ok, list} = Todoable.get_list(state.client, id: list.id)
     items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) > 0
 
     # Delete item
     #
-    {:ok, ""} = Todoable.delete_item(state.client, list_id: list_id, item_id: item.id)
+    {:ok, ""} = Todoable.delete_item(state.client, list_id: list.id, item_id: item.id)
 
     # Get list, check that delete item doesn't exist on it
     #
-    {:ok, list} = Todoable.get_list(state.client, id: list_id)
+    {:ok, list} = Todoable.get_list(state.client, id: list.id)
     items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) == 0
 
     # Delete list
     #
-    assert Todoable.delete_list(state.client, id: list_id) == {:ok, ""}
+    assert Todoable.delete_list(state.client, id: list.id) == {:ok, ""}
 
     # Check that the deleted list doesn't appear in all lists
     #

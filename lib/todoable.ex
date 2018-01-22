@@ -57,7 +57,7 @@ defmodule Todoable do
       |> get("/lists/#{list_id}")
     end)
     |> case do
-      {:ok, body} -> {:ok, build_list(body)}
+      {:ok, body} -> {:ok, build_list(body, id: list_id)}
       {:error, body} -> {:error, body}
     end
   end
@@ -199,10 +199,10 @@ defmodule Todoable do
     end
   end
 
-  defp build_list(%{"items" => items} = list) when not is_nil(items) do
+  defp build_list(%{"items" => items} = list, id: list_id) when not is_nil(items) do
     %List{
-      id: list["id"],
-      items: Enum.map(list["items"], &build_item(list["id"], &1)),
+      id: list["id"] || list_id,
+      items: Enum.map(list["items"], &build_item(list["id"] || list_id, &1)),
       name: list["name"],
       src: list["src"],
       user_id: list["user_id"]
