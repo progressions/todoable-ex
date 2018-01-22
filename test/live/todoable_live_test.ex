@@ -26,6 +26,10 @@ defmodule TodoableBaseUrlTest do
       @password "password"
   end
 
+  def puts(message) do
+    if System.get_env("VERBOSE") == "true", do: IO.puts(message)
+  end
+
   test "acts on lists" do
     {:ok, client} =
       Todoable.build_client(base_url: @base_url)
@@ -35,64 +39,58 @@ defmodule TodoableBaseUrlTest do
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     Enum.each(matches, fn list -> Todoable.delete_list(client, list) end)
 
-    # Create list
-    #
+    puts("Create list")
+
     {:ok, list} = Todoable.create_list(client, name: "Shopping List")
     assert list.name == "Shopping List"
     assert list.id != nil
 
-    # Check that new list is included in all lists
-    #
+    puts("Check that new list is included in all lists")
+
     {:ok, lists} = Todoable.lists(client)
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(matches) > 0
 
-    {:ok, list} = Todoable.get_list(client, id: list.id)
+    puts("Create an item")
 
-    Enum.each(list.items, fn item ->
-      Todoable.delete_item(client, list_id: list.id, item_id: item.id)
-    end)
-
-    # Create an item
-    #
     {:ok, item} = Todoable.create_item(client, list_id: list.id, name: "Get some milk")
     assert item.name == "Get some milk"
     assert item.finished_at == nil
     assert item.list_id == list.id
 
-    # Finish an item
-    #
+    puts("Finish an item")
+
     {:ok, "Get some milk finished"} =
       Todoable.finish_item(client, list_id: list.id, item_id: item.id)
 
-    # Get list, check that item exists on it
-    #
+    puts("Get list, check that item exists on it")
+
     {:ok, list} = Todoable.get_list(client, id: list.id)
     items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) > 0
 
-    # Delete item
-    #
+    puts("Delete item")
+
     {:ok, ""} = Todoable.delete_item(client, list_id: list.id, item_id: item.id)
 
-    # Get list, check that delete item doesn't exist on it
-    #
+    puts("Get list, check that delete item doesn't exist on it")
+
     {:ok, list} = Todoable.get_list(client, id: list.id)
     items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) == 0
 
-    # Delete list
-    #
+    puts("Delete list")
+
     assert Todoable.delete_list(client, id: list.id) == {:ok, ""}
 
-    # Check that the deleted list doesn't appear in all lists
-    #
+    puts("Check that the deleted list doesn't appear in all lists")
+
     {:ok, lists} = Todoable.lists(client)
     new_matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(new_matches) == length(matches) - 1
 
-    # Check that nonexistent list can't be found
-    #
+    puts("Check that nonexistent list can't be found")
+
     {:error, "Could not find resource."} = Todoable.get_list(client, id: list.id)
   end
 end
