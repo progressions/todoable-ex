@@ -1,19 +1,28 @@
+ExUnit.start()
+
 defmodule TodoableBaseUrlTest do
   use ExUnit.Case
 
-  doctest Todoable
+  case System.get_env("API") do
+    "teachable" ->
+      IO.puts("Running live tests against Teachable API")
 
-  @base_url "http://todoable.teachable.tech/api/"
-  @username "progressions@gmail.com"
-  @password "todoable"
+      @base_url "http://todoable.teachable.tech/api/"
+      @username "progressions@gmail.com"
+      @password "todoable"
+    "heroku" ->
+      IO.puts("Running live tests against Heroku API")
 
-  @base_url "https://intense-hamlet-87296.herokuapp.com/api"
-  @username "username"
-  @password "password"
+      @base_url "https://intense-hamlet-87296.herokuapp.com/api"
+      @username "username"
+      @password "password"
+    _ ->
+      IO.puts("Running live tests against local API")
 
-  @base_url "http://localhost:4000/api"
-  @username "username"
-  @password "password"
+      @base_url "http://localhost:4000/api"
+      @username "username"
+      @password "password"
+  end
 
   setup do
     {:ok, client} =
