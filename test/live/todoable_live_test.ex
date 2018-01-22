@@ -36,8 +36,10 @@ defmodule TodoableBaseUrlTest do
       |> Todoable.authenticate(@username, @password)
 
     {:ok, lists} = Todoable.lists(client)
-    matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
-    Enum.each(matches, fn list -> Todoable.delete_list(client, list) end)
+
+    lists
+    |> Enum.filter(fn list -> list.name == "Shopping List" end)
+    |> Enum.each(fn list -> Todoable.delete_list(client, list) end)
 
     puts("Create list")
 
@@ -49,7 +51,7 @@ defmodule TodoableBaseUrlTest do
 
     {:ok, lists} = Todoable.lists(client)
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
-    assert length(matches) > 0
+    assert length(matches) == 1
 
     puts("Create an item")
 
@@ -87,7 +89,7 @@ defmodule TodoableBaseUrlTest do
 
     {:ok, lists} = Todoable.lists(client)
     new_matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
-    assert length(new_matches) == length(matches) - 1
+    assert length(new_matches) == 0
 
     puts("Check that nonexistent list can't be found")
 
