@@ -209,6 +209,7 @@ defmodule Todoable do
     }
   end
 
+  defp build_list(list, id: list_id), do: %List{id: list["id"] || list_id, name: list["name"], src: list["src"]}
   defp build_list(list), do: %List{id: list["id"], name: list["name"], src: list["src"]}
 
   defp build_item(list_id, item) do
