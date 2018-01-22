@@ -1,0 +1,3 @@
+API=local mix run ./test/live/todoable_live_test.ex
+API=heroku mix run ./test/live/todoable_live_test.ex
+API=teachable mix run ./test/live/todoable_live_test.ex
