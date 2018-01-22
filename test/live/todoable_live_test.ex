@@ -10,12 +10,14 @@ defmodule TodoableBaseUrlTest do
       @base_url "http://todoable.teachable.tech/api/"
       @username "progressions@gmail.com"
       @password "todoable"
+
     "heroku" ->
       IO.puts("Running live tests against Heroku API")
 
       @base_url "https://intense-hamlet-87296.herokuapp.com/api"
       @username "username"
       @password "password"
+
     _ ->
       IO.puts("Running live tests against local API")
 
@@ -49,21 +51,25 @@ defmodule TodoableBaseUrlTest do
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(matches) > 0
 
+    {:ok, list} = Todoable.get_list(state.client, id: list_id)
+    Enum.each(list.items, fn item ->
+      Todoable.delete_item(state.client, list_id: list_id, item_id: item.id)
+    end)
+
     # Create an item
     #
-    {:ok, item} = Todoable.create_item(state.client, list, name: "Get some milk")
+    {:ok, item} = Todoable.create_item(state.client, list_id: list_id, name: "Get some milk")
     assert item.name == "Get some milk"
     assert item.finished_at == nil
-    assert item.list_id == list.id
 
     # Finish an item
     #
     {:ok, "Get some milk finished"} =
-      Todoable.finish_item(state.client, list_id: list.id, item_id: item.id)
+      Todoable.finish_item(state.client, list_id: list_id, item_id: item.id)
 
     # Get list, check that item exists on it
     #
-    {:ok, list} = Todoable.get_list(state.client, list)
+    {:ok, list} = Todoable.get_list(state.client, id: list_id)
     items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
     assert length(items) > 0
 
