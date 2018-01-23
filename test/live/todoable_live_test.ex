@@ -53,6 +53,11 @@ defmodule TodoableBaseUrlTest do
     matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
     assert length(matches) == 1
 
+    puts("Check that you can't create a list with the same name")
+
+    {:error, result} = Todoable.create_list(client, name: "Shopping List")
+    assert result == %{"name" => ["has already been taken"]}
+
     puts("Create an item")
 
     {:ok, item} = Todoable.create_item(client, list_id: list.id, name: "Get some milk")
