@@ -1,4 +1,5 @@
 ExUnit.start()
+require IEx
 
 defmodule TodoableBaseUrlTest do
   use ExUnit.Case
@@ -31,9 +32,8 @@ defmodule TodoableBaseUrlTest do
   end
 
   test "acts on lists" do
-    {:ok, client} =
-      Todoable.build_client(base_url: @base_url)
-      |> Todoable.authenticate(@username, @password)
+    client = Todoable.build_client(base_url: @base_url)
+    {:ok, client} = Todoable.authenticate(client, @username, @password)
 
     {:ok, lists} = Todoable.lists(client)
 
@@ -50,7 +50,7 @@ defmodule TodoableBaseUrlTest do
     puts("Check that new list is included in all lists")
 
     {:ok, lists} = Todoable.lists(client)
-    matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
+    matches = Enum.filter(lists, &(&1.name == "Shopping List"))
     assert length(matches) == 1
 
     puts("Check that you can't create a list with the same name")
