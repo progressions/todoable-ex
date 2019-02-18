@@ -31,15 +31,20 @@ defmodule TodoableBaseUrlTest do
     if System.get_env("VERBOSE") == "true", do: IO.puts(message)
   end
 
-  test "acts on lists" do
+  def get_client do
     client = Todoable.build_client(base_url: @base_url)
     {:ok, client} = Todoable.authenticate(client, @username, @password)
 
+    client
+  end
+
+  test "acts on lists" do
+    client = get_client()
     {:ok, lists} = Todoable.lists(client)
 
     lists
-    |> Enum.filter(fn list -> list.name == "Shopping List" end)
-    |> Enum.each(fn list -> Todoable.delete_list(client, list) end)
+    |> Enum.filter(&(&1.name == "Shopping List"))
+    |> Enum.each(&Todoable.delete_list(client, &1))
 
     puts("Create list")
 
@@ -73,7 +78,7 @@ defmodule TodoableBaseUrlTest do
     puts("Get list, check that item exists on it")
 
     {:ok, list} = Todoable.get_list(client, id: list.id)
-    items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
+    items = Enum.filter(list.items, &(&1.name == "Get some milk"))
     assert length(items) > 0
 
     puts("Delete item")
@@ -83,7 +88,7 @@ defmodule TodoableBaseUrlTest do
     puts("Get list, check that delete item doesn't exist on it")
 
     {:ok, list} = Todoable.get_list(client, id: list.id)
-    items = Enum.filter(list.items, fn item -> item.name == "Get some milk" end)
+    items = Enum.filter(list.items, &(&1.name == "Get some milk"))
     assert length(items) == 0
 
     puts("Delete list")
@@ -93,11 +98,11 @@ defmodule TodoableBaseUrlTest do
     puts("Check that the deleted list doesn't appear in all lists")
 
     {:ok, lists} = Todoable.lists(client)
-    new_matches = Enum.filter(lists, fn list -> list.name == "Shopping List" end)
+    new_matches = Enum.filter(lists, &(&1.name == "Shopping List"))
     assert length(new_matches) == 0
 
     puts("Check that nonexistent list can't be found")
 
-    {:error, "Could not find resource."} = Todoable.get_list(client, id: list.id)
+    assert {:error, "Could not find resource."} = Todoable.get_list(client, id: list.id)
   end
 end
